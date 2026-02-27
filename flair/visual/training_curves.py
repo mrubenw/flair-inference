@@ -116,8 +116,7 @@ class Plotter:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. "
-                "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)
@@ -171,8 +170,7 @@ class Plotter:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. "
-                "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)
@@ -209,8 +207,7 @@ class Plotter:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. "
-                "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)

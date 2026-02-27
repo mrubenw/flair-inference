@@ -108,9 +108,7 @@ def cached_path(url_or_filename: str, cache_dir: Union[str, Path]) -> Path:
         # URL, so get it from the cache (downloading if necessary)
         return get_from_cache(url_or_filename, dataset_cache)
     elif parsed.scheme == "s3":
-        raise ValueError(
-            "S3 URLs are not supported. Download the data manually or use an HTTP/HTTPS URL."
-        )
+        raise ValueError("S3 URLs are not supported. Download the data manually or use an HTTP/HTTPS URL.")
     elif len(parsed.scheme) < 2 and Path(url_or_filename).exists():
         # File, and it exists.
         return Path(url_or_filename)

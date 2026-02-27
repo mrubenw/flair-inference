@@ -7,7 +7,7 @@ from flair.nn import Classifier, Model
 
 
 def make_multitask_model_and_corpus(
-    mapping: Iterable[Union[tuple[Classifier, Corpus], tuple[Classifier, Corpus, float]]]
+    mapping: Iterable[Union[tuple[Classifier, Corpus], tuple[Classifier, Corpus, float]]],
 ) -> tuple[Model, Corpus]:
     models = []
     corpora = []

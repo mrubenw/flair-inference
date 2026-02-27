@@ -19,12 +19,12 @@ class BaseEmbeddingsTest:
     name_field: Optional[str] = None
     weired_texts: list[str] = [
         "Hybrid mesons , qq ̄ states with an admixture",
-        "typical proportionalities of \u223C 1nmV \u2212 1 [ 3,4 ] .",
+        "typical proportionalities of \u223c 1nmV \u2212 1 [ 3,4 ] .",
         "🤟 🤟  🤟 hüllo",
         "🤟hallo 🤟 🤟 🤟 🤟",
         "🤟",
         "Hello \u2029 my \ufe0f name is \u200c Chris \u200b Kamphuis, and I \ufeff live in \u200c the \u2028 Netherlands.",
-        "\uF8F9",
+        "\uf8f9",
     ]
 
     def create_embedding_from_name(self, name: str):
