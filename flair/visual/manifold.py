@@ -100,8 +100,20 @@ class Visualizer:
 
     @staticmethod
     def visualize(X, contexts, file):
-        import matplotlib.pyplot
-        import mpld3
+        try:
+            import matplotlib.pyplot
+        except ImportError:
+            raise ImportError(
+                "matplotlib is required for embedding visualization. "
+                "Install with: pip install matplotlib"
+            )
+        try:
+            import mpld3
+        except ImportError:
+            raise ImportError(
+                "mpld3 is required for embedding visualization. "
+                "Install with: pip install mpld3"
+            )
 
         fig, ax = matplotlib.pyplot.subplots()
 

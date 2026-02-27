@@ -856,12 +856,6 @@ class DefaultClassifier(Classifier[DT], typing.Generic[DT, DT2], ABC):
         else:
             self.loss_weights = None
 
-        # set up gradient reversal if so specified
-        if inverse_model:
-            from pytorch_revgrad import RevGrad
-
-            self.gradient_reversal = RevGrad()
-
         if self.multi_label:
             self.loss_function: _Loss = torch.nn.BCEWithLogitsLoss(weight=self.loss_weights, reduction="sum")
         else:

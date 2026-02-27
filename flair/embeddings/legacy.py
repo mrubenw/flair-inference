@@ -361,13 +361,18 @@ class CharLMEmbeddings(TokenEmbeddings):
         # initialize cache if use_cache set
         self.cache = None
         if use_cache:
+            try:
+                from sqlitedict import SqliteDict
+            except ImportError:
+                raise ImportError(
+                    "sqlitedict is required for CharLMEmbeddings with use_cache=True. "
+                    "Install with: pip install sqlitedict"
+                )
             cache_path = (
                 Path(f"{self.name}-tmp-cache.sqllite")
                 if not cache_directory
                 else cache_directory / f"{self.name}-tmp-cache.sqllite"
             )
-            from sqlitedict import SqliteDict
-
             self.cache = SqliteDict(str(cache_path), autocommit=True)
 
         # embed a dummy sentence to determine embedding_length

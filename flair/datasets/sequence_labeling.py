@@ -3382,11 +3382,16 @@ class NER_MULTI_CONER(MultiFileColumnCorpus):
         in_memory: bool = True,
         **corpusargs,
     ) -> None:
-        """Download and Initialize the MultiCoNer corpus.
+        """Initialize the MultiCoNer corpus (SemEval 2022 Task 11).
+
+        Requires manual download. Download from https://registry.opendata.aws/multiconer/
+        (e.g. via `aws s3 cp s3://multiconer ./ --recursive --no-sign-request`) and unpack
+        into a folder called 'ner_multi_coner'. Set base_path to the parent directory, or
+        place it in {FLAIR_CACHE_ROOT}/datasets to leave base_path empty.
 
         Args:
             task: either 'multi', 'code-switch', or the language code for one of the mono tasks.
-            base_path: Path to the CoNLL-03 corpus (i.e. 'conll_03' folder) on your machine POS tags or chunks respectively
+            base_path: Path to the parent directory containing the ner_multi_coner folder.
             in_memory: If True, keeps dataset in memory giving speedups in training.
         """
         base_path = flair.cache_root / "datasets" if not base_path else Path(base_path)
@@ -3419,7 +3424,17 @@ class NER_MULTI_CONER(MultiFileColumnCorpus):
         # this dataset name
         dataset_name = self.__class__.__name__.lower()
 
-        data_folder = cached_path("s3://multiconer", base_path / dataset_name) / "multiconer2022"
+        data_folder = base_path / dataset_name / "multiconer" / "multiconer2022"
+
+        if not data_folder.exists():
+            log.warning("-" * 100)
+            log.warning(f'WARNING: MultiCoNer dataset not found at "{data_folder}".')
+            log.warning(
+                "Download from https://registry.opendata.aws/multiconer/ "
+                "(e.g. aws s3 cp s3://multiconer ./multiconer --recursive --no-sign-request) "
+                "and place in ner_multi_coner/ folder."
+            )
+            log.warning("-" * 100)
 
         train_files = [data_folder / folders[task] / f"{task}_train.conll"]
         dev_files = [data_folder / folders[task] / f"{task}_dev.conll"]

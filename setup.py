@@ -5,14 +5,14 @@ from setuptools import find_packages, setup
 required = Path("requirements.txt").read_text(encoding="utf-8").split("\n")
 
 setup(
-    name="flair",
+    name="flair-inference",
     version="0.15.1",
     description="A very simple framework for state-of-the-art NLP",
     long_description=Path("README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
-    author="Alan Akbik",
-    author_email="alan.akbik@gmail.com",
-    url="https://github.com/flairNLP/flair",
+    author="Ruben Winastwan",
+    author_email="marcellusruben@gmail.com",
+    url="https://github.com/mrubenw/flair-inference",
     packages=find_packages(exclude=["tests", "tests.*"]),  # same as name
     license="MIT",
     install_requires=required,

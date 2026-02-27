@@ -44,7 +44,6 @@ from . import (  # noqa: E402 import after setting device
     data,
     models,
     nn,
-    trainers,
     visual,
 )
 
@@ -95,6 +94,5 @@ __all__ = [
     "nn",
     "set_proxies",
     "set_seed",
-    "trainers",
     "visual",
 ]

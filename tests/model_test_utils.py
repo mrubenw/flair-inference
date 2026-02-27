@@ -7,7 +7,6 @@ from flair.data import Dictionary, Sentence
 from flair.embeddings import TransformerEmbeddings
 from flair.models import FewshotClassifier
 from flair.nn import Model
-from flair.trainers import ModelTrainer
 
 
 class BaseModelTest:
@@ -91,70 +90,16 @@ class BaseModelTest:
         self.empty_sentence.clear_embeddings()
 
     @pytest.mark.integration()
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_model(self, results_base_path, corpus, embeddings, example_sentence, train_test_sentence):
-        flair.set_seed(123)
-        label_dict = corpus.make_label_dictionary(label_type=self.train_label_type)
-
-        model = self.build_model(embeddings, label_dict)
-        corpus = self.transform_corpus(model, corpus)
-
-        trainer = ModelTrainer(model, corpus)
-
-        if self.finetune_instead_of_train:
-            trainer.fine_tune(results_base_path, shuffle=False, **self.training_args)
-        else:
-            trainer.train(results_base_path, shuffle=False, **self.training_args)
-
-        model.predict(train_test_sentence)
-        self.assert_training_example(train_test_sentence)
-
-        for label in train_test_sentence.get_labels(self.train_label_type):
-            assert label.value is not None
-            assert 0.0 <= label.score <= 1.0
-            assert isinstance(label.score, float)
-
-        del trainer, model, corpus
-
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
-        del loaded_model
+        pass  # Trainer tests skipped - flair.trainers removed
 
     @pytest.mark.integration()
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_model_multi_corpus(
         self, results_base_path, multi_corpus, embeddings, example_sentence, train_test_sentence
     ):
-        flair.set_seed(123)
-        label_dict = multi_corpus.make_label_dictionary(label_type=self.train_label_type)
-
-        model = self.build_model(embeddings, label_dict)
-        corpus = self.transform_corpus(model, multi_corpus)
-
-        trainer = ModelTrainer(model, corpus)
-
-        if self.finetune_instead_of_train:
-            trainer.fine_tune(results_base_path, shuffle=False, **self.training_args)
-        else:
-            trainer.train(results_base_path, shuffle=False, **self.training_args)
-
-        model.predict(train_test_sentence)
-        self.assert_training_example(train_test_sentence)
-
-        for label in train_test_sentence.get_labels(self.train_label_type):
-            assert label.value is not None
-            assert 0.0 <= label.score <= 1.0
-            assert isinstance(label.score, float)
-
-        del trainer, model, corpus
-
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
-        del loaded_model
+        pass  # Trainer tests skipped - flair.trainers removed
 
     def test_forward_loss(self, labeled_sentence, embeddings):
         label_dict = Dictionary()
@@ -173,45 +118,11 @@ class BaseModelTest:
         assert self.has_embedding(example_sentence)
         del loaded_pretrained_model
 
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_model_multi_label(
         self, results_base_path, multi_class_corpus, embeddings, example_sentence, multiclass_train_test_sentence
     ):
-        flair.set_seed(123)
-        label_dict = multi_class_corpus.make_label_dictionary(label_type=self.train_label_type)
-
-        model = self.build_model(embeddings, label_dict, multi_label=True)
-        corpus = self.transform_corpus(model, multi_class_corpus)
-
-        trainer = ModelTrainer(model, corpus)
-        trainer.train(
-            results_base_path,
-            mini_batch_size=1,
-            max_epochs=5,
-            shuffle=False,
-            train_with_test=True,
-            train_with_dev=True,
-        )
-
-        model.predict(multiclass_train_test_sentence)
-
-        sentence = Sentence("apple tv")
-
-        model.predict(sentence)
-        for label in self.multiclass_prediction_labels:
-            assert label in [label.value for label in sentence.get_labels(self.train_label_type)], label
-
-        for label in sentence.labels:
-            print(label)
-            assert label.value is not None
-            assert 0.0 <= label.score <= 1.0
-            assert isinstance(label.score, float)
-
-        del trainer, model, multi_class_corpus
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
+        pass  # Trainer tests skipped - flair.trainers removed
 
     def test_context_is_set_correctly(self):
         sentences = [

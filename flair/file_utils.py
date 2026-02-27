@@ -17,11 +17,8 @@ from pathlib import Path
 from typing import Optional, Union, cast
 from urllib.parse import urlparse
 
-import boto3
 import requests
 import torch
-from botocore import UNSIGNED
-from botocore.config import Config
 from requests import HTTPError
 from tqdm import tqdm as _tqdm
 
@@ -111,7 +108,9 @@ def cached_path(url_or_filename: str, cache_dir: Union[str, Path]) -> Path:
         # URL, so get it from the cache (downloading if necessary)
         return get_from_cache(url_or_filename, dataset_cache)
     elif parsed.scheme == "s3":
-        return download_s3_to_path(parsed.netloc, dataset_cache)
+        raise ValueError(
+            "S3 URLs are not supported. Download the data manually or use an HTTP/HTTPS URL."
+        )
     elif len(parsed.scheme) < 2 and Path(url_or_filename).exists():
         # File, and it exists.
         return Path(url_or_filename)
@@ -121,21 +120,6 @@ def cached_path(url_or_filename: str, cache_dir: Union[str, Path]) -> Path:
     else:
         # Something unknown
         raise ValueError(f"unable to parse {url_or_filename} as a URL or as a local path")
-
-
-def download_s3_to_path(bucket_name: str, cache_path: Path) -> Path:
-    out_path = cache_path / bucket_name
-    if out_path.exists():
-        return out_path
-    s3 = boto3.resource("s3", config=Config(signature_version=UNSIGNED))
-    bucket = s3.Bucket(bucket_name)
-    for obj in bucket.objects.iterator():
-        if obj.key[-1] == "/":
-            continue
-        target = out_path / obj.key
-        target.parent.mkdir(exist_ok=True, parents=True)
-        bucket.download_file(obj.key, str(target))
-    return out_path
 
 
 def unzip_file(file: Union[str, Path], unzip_to: Union[str, Path]):

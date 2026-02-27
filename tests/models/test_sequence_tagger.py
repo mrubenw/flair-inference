@@ -5,7 +5,6 @@ import torch.nn.functional as F
 import flair
 from flair.embeddings import FlairEmbeddings, WordEmbeddings
 from flair.models import SequenceTagger
-from flair.trainers import ModelTrainer
 from tests.model_test_utils import BaseModelTest
 
 
@@ -67,62 +66,23 @@ class TestSequenceTagger(BaseModelTest):
         assert example_sentence.get_token(3).tag == "S-LOC"
 
     @pytest.mark.integration()
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_tagger_flair_embeddings(self, results_base_path, corpus, example_sentence):
-        tag_dictionary = corpus.make_label_dictionary("ner", add_unk=False)
-
-        model = self.build_model(FlairEmbeddings("news-forward-fast"), tag_dictionary)
-        trainer = ModelTrainer(model, corpus)
-
-        trainer.train(results_base_path, shuffle=False, **self.training_args)
-
-        del trainer, model, tag_dictionary, corpus
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
-        del loaded_model
+        pass  # Trainer tests skipped - flair.trainers removed
 
     @pytest.mark.integration()
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_tagger_with_trainable_hidden_state(
         self, embeddings, results_base_path, corpus, example_sentence
     ):
-        tag_dictionary = corpus.make_label_dictionary("ner", add_unk=False)
-
-        model = self.build_model(embeddings, tag_dictionary, train_initial_hidden_state=True)
-        trainer = ModelTrainer(model, corpus)
-
-        trainer.train(results_base_path, shuffle=False, **self.training_args)
-
-        del trainer, model, tag_dictionary, corpus
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
-        del loaded_model
+        pass  # Trainer tests skipped - flair.trainers removed
 
     @pytest.mark.integration()
+    @pytest.mark.skip(reason="flair.trainers removed from inference-only build")
     def test_train_load_use_tagger_disjunct_tags(
         self, results_base_path, tasks_base_path, embeddings, example_sentence
     ):
-        corpus = flair.datasets.ColumnCorpus(
-            data_folder=tasks_base_path / "fashion_disjunct",
-            column_format={0: "text", 3: "ner"},
-        )
-        tag_dictionary = corpus.make_label_dictionary("ner", add_unk=True)
-        model = self.build_model(embeddings, tag_dictionary, allow_unk_predictions=True)
-        trainer = ModelTrainer(model, corpus)
-
-        trainer.train(results_base_path, shuffle=False, **self.training_args)
-
-        del trainer, model, tag_dictionary, corpus
-        loaded_model = self.model_cls.load(results_base_path / "final-model.pt")
-
-        loaded_model.predict(example_sentence)
-        loaded_model.predict([example_sentence, self.empty_sentence])
-        loaded_model.predict([self.empty_sentence])
-        del loaded_model
+        pass  # Trainer tests skipped - flair.trainers removed
 
     @pytest.mark.integration()
     def test_all_token_prob_distribution(self, embeddings, corpus):

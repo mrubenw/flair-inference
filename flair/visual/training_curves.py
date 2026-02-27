@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 import csv
 import logging
 import math
 from collections import defaultdict
 from pathlib import Path
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes import Axes
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 # header for 'weights.txt'
 WEIGHT_NAME = 1
@@ -109,6 +112,14 @@ class Plotter:
         return lrs, losses
 
     def plot_weights(self, file_name: Union[str, Path]):
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError(
+                "matplotlib is required for training curve visualization. "
+                "Install with: pip install matplotlib"
+            )
+
         file_name = Path(file_name)
 
         weights = self._extract_weight_data(file_name)
@@ -156,6 +167,14 @@ class Plotter:
         plt.close(fig)
 
     def plot_training_curves(self, file_name: Union[str, Path], plot_values: list[str] = ["loss", "F1"]):
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError(
+                "matplotlib is required for training curve visualization. "
+                "Install with: pip install matplotlib"
+            )
+
         file_name = Path(file_name)
 
         fig = plt.figure(figsize=(15, 10))
@@ -186,6 +205,14 @@ class Plotter:
         plt.close(fig)
 
     def plot_learning_rate(self, file_name: Union[str, Path], skip_first: int = 10, skip_last: int = 5):
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            raise ImportError(
+                "matplotlib is required for training curve visualization. "
+                "Install with: pip install matplotlib"
+            )
+
         file_name = Path(file_name)
 
         lrs, losses = self._extract_learning_rate(file_name)

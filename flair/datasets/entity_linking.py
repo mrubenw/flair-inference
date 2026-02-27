@@ -925,7 +925,13 @@ class NEL_ENGLISH_AIDA(ColumnCorpus):
             if use_ids_and_check_existence:
                 # we use the wikiids in the data instead of directly utilizing the wikipedia urls.
                 # like this we can quickly check if the corresponding page exists
-                import wikipediaapi
+                try:
+                    import wikipediaapi
+                except ImportError:
+                    raise ImportError(
+                        "wikipedia-api is required for NEL_ENGLISH_AIDA with use_ids_and_check_existence=True. "
+                        "Install with: pip install wikipedia-api"
+                    )
 
                 wiki_wiki = wikipediaapi.Wikipedia(language="en")
                 wikiid_wikiname_dict = self._get_wikiid_wikiname_dict(data_folder)

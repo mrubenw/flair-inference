@@ -1,3 +1,5 @@
+import pytest
+
 from flair.data import Sentence, Span, Token
 from flair.embeddings import FlairEmbeddings
 from flair.visual import Highlighter
@@ -25,6 +27,7 @@ def test_highlighter(resources_path):
 
 
 def test_plotting_training_curves_and_weights(resources_path):
+    pytest.importorskip("matplotlib")
     plotter = Plotter()
     plotter.plot_training_curves(resources_path / "visual/loss.tsv")
     plotter.plot_weights(resources_path / "visual/weights.txt")
