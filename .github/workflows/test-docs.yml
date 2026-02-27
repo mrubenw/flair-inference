@@ -5,6 +5,7 @@ on:
 
 jobs:
   build_docs:
+    if: false
     name: Build the docs using Sphinx and publish as artifact
     runs-on: ubuntu-latest
     env:
