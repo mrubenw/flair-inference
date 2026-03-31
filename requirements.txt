@@ -15,5 +15,5 @@ segtok>=1.5.11
 tabulate>=0.8.10
 torch>=1.13.1
 tqdm>=4.63.0
-transformers>=4.25.0,<5.0.0
+transformers>=4.25.0,<5.9.0
 bioc<3.0.0,>=2.0.0
