@@ -23,7 +23,6 @@ from transformers import (
     FeatureExtractionMixin,
     LayoutLMTokenizer,
     LayoutLMTokenizerFast,
-    LayoutLMv2FeatureExtractor,
     PretrainedConfig,
     PreTrainedTokenizer,
     T5Config,
@@ -682,7 +681,13 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
                 batched_image_encodings = [image_encodings[i] for i in cpu_overflow_to_sample_mapping]
                 image_encodings = torch.stack(batched_image_encodings)
             image_encodings = image_encodings.to(flair.device)
-            if isinstance(self.feature_extractor, LayoutLMv2FeatureExtractor):
+            try:
+                from transformers import LayoutLMv2FeatureExtractor
+                is_layoutlmv2 = isinstance(self.feature_extractor, LayoutLMv2FeatureExtractor)
+            except ImportError:
+                is_layoutlmv2 = False
+
+            if is_layoutlmv2:
                 model_kwargs["image"] = image_encodings
             else:
                 model_kwargs["pixel_values"] = image_encodings

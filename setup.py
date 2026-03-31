@@ -6,7 +6,7 @@ required = Path("requirements.txt").read_text(encoding="utf-8").split("\n")
 
 setup(
     name="flair-inference",
-    version="0.15.1",
+    version="0.15.2",
     description="A very simple framework for state-of-the-art NLP",
     long_description=Path("README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
