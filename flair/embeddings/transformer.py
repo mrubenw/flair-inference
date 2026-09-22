@@ -8,13 +8,13 @@ import zipfile
 from abc import abstractmethod
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Callable, Dict, Literal, Optional, Union, cast
+from typing import Any, Callable, Literal, Optional, Union, cast
 
 import torch
 import transformers
 from packaging.version import Version
 from torch.jit import ScriptModule
-from transformers import (
+from transformers import (  # type: ignore[attr-defined]  # T5TokenizerFast: transformers 5 exposes it lazily via module __getattr__
     CONFIG_MAPPING,
     AutoConfig,
     AutoFeatureExtractor,
@@ -22,7 +22,7 @@ from transformers import (
     AutoTokenizer,
     FeatureExtractionMixin,
     PretrainedConfig,
-    PreTrainedTokenizer,
+    PreTrainedTokenizerBase,
     T5Config,
     T5TokenizerFast,
 )
@@ -231,11 +231,12 @@ def _legacy_reconstruct_word_ids(
         j = 0
         for _i, token_id in enumerate(token_ids):
             while expanded_token_ids[j] != token_id:
-                token_texts.insert(j, embedding.tokenizer.convert_ids_to_tokens(expanded_token_ids[j]))
+                # a single int id always yields a single str token, never a list
+                token_texts.insert(j, cast(str, embedding.tokenizer.convert_ids_to_tokens(expanded_token_ids[j])))
                 j += 1
             j += 1
         while j < len(expanded_token_ids):
-            token_texts.insert(j, embedding.tokenizer.convert_ids_to_tokens(expanded_token_ids[j]))
+            token_texts.insert(j, cast(str, embedding.tokenizer.convert_ids_to_tokens(expanded_token_ids[j])))
             j += 1
         if not embedding.allow_long_sentences and embedding.truncate:
             token_texts = token_texts[: embedding.tokenizer.model_max_length]
@@ -333,7 +334,7 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
     def __init__(
         self,
         name: str,
-        tokenizer: PreTrainedTokenizer,
+        tokenizer: PreTrainedTokenizerBase,
         embedding_length: int,
         context_length: int,
         context_dropout: float,
@@ -356,7 +357,7 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
         super().__init__()
         self.document_embedding = is_document_embedding
         self.token_embedding = is_token_embedding
-        self.tokenizer: PreTrainedTokenizer = tokenizer
+        self.tokenizer: PreTrainedTokenizerBase = tokenizer
         self.embedding_length_internal = embedding_length
         self.context_length = context_length
         self.context_dropout = context_dropout
@@ -444,7 +445,7 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
         return model_state
 
     @classmethod
-    def _tokenizer_from_bytes(cls, zip_data: BytesIO) -> PreTrainedTokenizer:
+    def _tokenizer_from_bytes(cls, zip_data: BytesIO) -> PreTrainedTokenizerBase:
         zip_obj = zipfile.ZipFile(zip_data)
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_obj.extractall(temp_dir)
@@ -674,14 +675,15 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
         if self.feature_extractor is not None:
             images = [sent.get_metadata("image") for sent in sentences]
             # Cast self.feature_extractor to a callable type
-            feature_extractor_callable = cast(Callable[..., Dict[str, Any]], self.feature_extractor)
+            feature_extractor_callable = cast(Callable[..., dict[str, Any]], self.feature_extractor)
             image_encodings = feature_extractor_callable(images, return_tensors="pt")["pixel_values"]
             if cpu_overflow_to_sample_mapping is not None:
                 batched_image_encodings = [image_encodings[i] for i in cpu_overflow_to_sample_mapping]
                 image_encodings = torch.stack(batched_image_encodings)
             image_encodings = image_encodings.to(flair.device)
             try:
-                from transformers import LayoutLMv2FeatureExtractor
+                from transformers import LayoutLMv2FeatureExtractor  # type: ignore[attr-defined]
+                # transformers 5 exposes this lazily via module __getattr__; guarded by ImportError below
 
                 is_layoutlmv2 = isinstance(self.feature_extractor, LayoutLMv2FeatureExtractor)
             except ImportError:
@@ -1103,7 +1105,7 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
 
         logging.set_verbosity_error()
 
-        self.tokenizer: PreTrainedTokenizer
+        self.tokenizer: PreTrainedTokenizerBase
         self.feature_extractor: Optional[FeatureExtractionMixin]
 
         if tokenizer_data is None:
@@ -1151,7 +1153,10 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
             else:
                 transformer_model = AutoModel.from_config(saved_config, **transformers_model_kwargs, **kwargs)
         try:
-            transformer_model = transformer_model.to(flair.device)
+            # transformers 5 decorates PreTrainedModel.to with functools.wraps(nn.Module.to);
+            # mypy misreads the resulting _Wrapped.__call__ signature as expecting a PreTrainedModel
+            # instance for the device argument. Runtime behaviour of .to() is unaffected.
+            transformer_model = transformer_model.to(flair.device)  # type: ignore[arg-type]
         except ValueError as e:
             # if model is quantized by BitsAndBytes this will fail
             if "Please use the model as it is" not in str(e):
@@ -1197,11 +1202,11 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
 
         self.stride = self.tokenizer.model_max_length // 2 if allow_long_sentences else 0
         self.allow_long_sentences = allow_long_sentences
-        self.use_lang_emb = hasattr(transformer_model, "use_lang_emb") and transformer_model.use_lang_emb
+        self.use_lang_emb = bool(hasattr(transformer_model, "use_lang_emb") and transformer_model.use_lang_emb)
 
         # model name
         if name is None:
-            self.name = "transformer-" + transformer_model.name_or_path
+            self.name = "transformer-" + str(transformer_model.name_or_path)
         else:
             self.name = name
         self.base_model_name = transformer_model.name_or_path
