@@ -76,6 +76,7 @@ ignore = [
   "D105",
   "D107",
   "E501",   # Ignore line too long
+  "ISC001", # Conflicts with the formatter (single-line implicit string concatenation)
   "RUF012",
 ]
 
@@ -90,6 +91,7 @@ unfixable = [
 "flair/embeddings/legacy.py" = ["D205"]
 "scripts/*" = ["INP001"]  #  no need for __ini__ for scripts
 "flair/datasets/*" = ["D417"]  # need to fix datasets in a unified way later.
+"tests/test_tokenize_sentence.py" = ["RUF001"]  # fullwidth CJK punctuation is intentional test data
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
