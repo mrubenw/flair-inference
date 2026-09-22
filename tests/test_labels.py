@@ -277,9 +277,7 @@ def test_data_point_equality():
 
 
 def test_label_typename():
-    """Test the typename property of the Label class to ensure it correctly
-    identifies and returns the label type.
-    """
+    """Test the typename property of the Label class to ensure it correctly identifies and returns the label type."""
     # Create a sentence with various types of labels
     sentence = Sentence("George Washington went to Washington.")
 

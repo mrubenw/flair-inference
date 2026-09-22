@@ -148,7 +148,7 @@ class Dictionary:
             raise IndexError
 
     def get_idx_for_items(self, items: list[str]) -> list[int]:
-        """Retrieves the integer IDs for a list of string items. (No cache version)"""
+        """Retrieves the integer IDs for a list of string items. (No cache version)."""
         if not items:
             return []
 
@@ -689,6 +689,7 @@ class DataPoint(ABC):
     # Default implementation for simpler classes
     def _get_dynamic_embedding_names(self) -> set[str]:
         """Internal helper to find names of embeddings with requires_grad=True.
+
         Default implementation checks only direct embeddings. Subclasses override
         for recursive checks if needed.
         """
@@ -697,6 +698,7 @@ class DataPoint(ABC):
     # Default implementation for simpler classes
     def _get_all_embedding_names(self) -> set[str]:
         """Internal helper to find names of all embeddings.
+
         Default implementation checks only direct embeddings. Subclasses override
         for recursive checks if needed.
         """
@@ -1311,6 +1313,7 @@ class Sentence(DataPoint):
 
     def _perform_retokenization_with_annotation_preservation(self, new_tokenizer: Tokenizer) -> None:
         """Internal method to retokenize the sentence, attempting to preserve annotations.
+
         This method directly manipulates self._tokens and updates self._tokenizer_that_created_tokens.
         """
         # 1. Capture all annotations from the current tokenization
@@ -1334,6 +1337,7 @@ class Sentence(DataPoint):
     @tokenizer.setter
     def tokenizer(self, new_tokenizer: Tokenizer) -> None:
         """Sets the new intended tokenizer for this sentence.
+
         Retokenization is lazy and will occur the next time .tokens is accessed if the
         new_tokenizer is different from the one that last created the tokens.
         """
@@ -1500,10 +1504,9 @@ class Sentence(DataPoint):
         super().clear_embeddings(embedding_names)
 
         # clear token embeddings if sentence is tokenized
-        if self._is_tokenized():
-            if self._tokens is not None:
-                for token in self._tokens:
-                    token.clear_embeddings(embedding_names)
+        if self._is_tokenized() and self._tokens is not None:
+            for token in self._tokens:
+                token.clear_embeddings(embedding_names)
 
     def left_context(self, context_length: int, respect_document_boundaries: bool = True) -> list[Token]:
         sentence = self
@@ -1583,6 +1586,7 @@ class Sentence(DataPoint):
 
     def to_dict(self) -> dict[str, Any]:
         """Creates a dictionary representation of the Sentence.
+
         This dictionary can be used to recreate the sentence with from_dict().
 
         Returns:
@@ -1676,8 +1680,7 @@ class Sentence(DataPoint):
         return sentence
 
     def __deepcopy__(self, memo):
-        """Custom deepcopy implementation to handle complex object graph with Spans and Relations.
-        """
+        """Custom deepcopy implementation to handle complex object graph with Spans and Relations."""
         # --- 1. Create the basic copy of the Sentence ---
         # First, create a new sentence with the same text and tokenizer.
         # This will create a fresh set of tokens.
@@ -1943,6 +1946,7 @@ class Sentence(DataPoint):
 
     def _clear_internal_state(self) -> None:
         """Resets the internal tokenization and annotation state of the sentence.
+
         Used before operations like retokenization that rebuild the sentence structure.
         """
         # Clear the central annotation registry
@@ -1956,6 +1960,7 @@ class Sentence(DataPoint):
 
     def _capture_annotations(self) -> dict[str, Any]:
         """Captures all annotations (sentence, span, relation labels) in a serializable format.
+
         This is a non-destructive, read-only operation.
 
         Returns:
@@ -2029,6 +2034,7 @@ class Sentence(DataPoint):
 
     def _reapply_annotations(self, annotation_data: dict[str, Any]) -> None:
         """Applies a dictionary of annotations to the current sentence.
+
         This is used by both retokenization and deserialization.
 
         Args:
@@ -2098,6 +2104,7 @@ class Sentence(DataPoint):
 
     def retokenize(self, new_tokenizer: Tokenizer) -> None:
         """Eagerly retokenizes the sentence using the provided tokenizer.
+
         This attempts to preserve span, relation, and sentence labels.
         Token-level labels are generally discarded as their basis (the tokens themselves) changes.
 
@@ -2427,6 +2434,7 @@ class Corpus(typing.Generic[T_co]):
     @property
     def corpus_tokenizer(self) -> Optional[Tokenizer]:
         """Returns the custom tokenizer provided during corpus initialization for retokenization, if any.
+
         Returns None if no custom retokenizer was specified.
         """
         # The tokenizer attribute is set by subclasses like ColumnCorpus during their init

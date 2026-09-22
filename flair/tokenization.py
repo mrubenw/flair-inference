@@ -316,7 +316,7 @@ class JapaneseTokenizer(Tokenizer):
     def from_dict(cls, config: dict) -> "JapaneseTokenizer":
         """Instantiate the tokenizer from a configuration dictionary."""
         try:
-            import konoha  # Check if konoha is installed during load
+            import konoha  # noqa: F401 - Check if konoha is installed during load
         except ModuleNotFoundError:
             raise ImportError('The library "konoha" is not installed! Please install it to load this tokenizer.')
 
@@ -470,7 +470,7 @@ class SciSpacyTokenizer(Tokenizer):
     def from_dict(cls, config: dict) -> "SciSpacyTokenizer":
         """Instantiate the tokenizer from a configuration dictionary."""
         try:
-            import spacy  # Check imports during load
+            import spacy  # noqa: F401 - Check imports during load
         except ImportError:
             raise ImportError("Spacy or SciSpacy not installed. Please install them to load this tokenizer.")
         # No specific configuration needed for instantiation
@@ -478,7 +478,8 @@ class SciSpacyTokenizer(Tokenizer):
 
 
 class StaccatoTokenizer(Tokenizer):
-    """A string-based tokenizer that splits text into tokens based on the following rules:
+    """A string-based tokenizer that splits text into tokens based on the following rules.
+
     - Punctuation characters are split into individual tokens
     - Sequences of numbers are kept together as single tokens
     - Kanji characters are split into individual tokens
@@ -561,6 +562,7 @@ class StaccatoTokenizer(Tokenizer):
 
 class NoTokenizer(Tokenizer):
     """A dummy tokenizer that performs no tokenization.
+
     It returns the original text as a single token in a list,
     or an empty list if the text is empty or whitespace.
     Useful when text is pre-tokenized or to disable tokenization.
@@ -570,8 +572,9 @@ class NoTokenizer(Tokenizer):
         super().__init__()
 
     def tokenize(self, text: str) -> list[str]:
-        """Returns the text as a single token if not empty/whitespace,
-        otherwise returns an empty list.
+        """Returns the text as a single token if not empty/whitespace.
+
+        Otherwise returns an empty list.
         """
         stripped_text = text.strip()
         if not stripped_text:

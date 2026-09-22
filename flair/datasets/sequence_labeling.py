@@ -5668,10 +5668,7 @@ class NER_DANISH_DANSK(ColumnCorpus):
             in_memory: If True, keeps dataset in memory giving speedups in training
             corpusargs: Additional arguments for corpus initialization
         """
-        if base_path is None:
-            base_path = Path(flair.cache_root) / "datasets" / "ner_danish_dansk"
-        else:
-            base_path = Path(base_path)
+        base_path = Path(flair.cache_root) / "datasets" / "ner_danish_dansk" if base_path is None else Path(base_path)
 
         # Create the corpus directory if it doesn't exist
         base_path.mkdir(parents=True, exist_ok=True)
