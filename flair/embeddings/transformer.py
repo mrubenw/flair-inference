@@ -21,8 +21,6 @@ from transformers import (
     AutoModel,
     AutoTokenizer,
     FeatureExtractionMixin,
-    LayoutLMTokenizer,
-    LayoutLMTokenizerFast,
     PretrainedConfig,
     PreTrainedTokenizer,
     T5Config,
@@ -378,8 +376,9 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
         self.tokenizer_needs_ocr_boxes = "boxes" in tokenizer_params
         self.initial_cls_token = self._has_initial_cls_token()
 
-        # The layoutlm tokenizer doesn't handle ocr themselves
-        self.needs_manual_ocr = isinstance(self.tokenizer, (LayoutLMTokenizer, LayoutLMTokenizerFast))
+        # Some models do not compute the ocr boxes themselves. The caller detects
+        # those models from the model config and passes needs_manual_ocr explicitly.
+        self.needs_manual_ocr = False
         if needs_manual_ocr is not None:
             self.needs_manual_ocr = needs_manual_ocr
 
@@ -1244,6 +1243,11 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
 
         # return length
         self.embedding_length_internal = self._calculate_embedding_length(transformer_model)
+
+        # The layoutlm tokenizer does not handle ocr itself. Detect the model from the
+        # config: transformers 5 makes LayoutLMTokenizer an alias of BertTokenizer, so
+        # a tokenizer isinstance check matches every bert model instead of layoutlm.
+        self.needs_manual_ocr = getattr(transformer_model.config, "model_type", "") == "layoutlm"
         if needs_manual_ocr is not None:
             self.needs_manual_ocr = needs_manual_ocr
 
