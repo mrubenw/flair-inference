@@ -1251,7 +1251,7 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
         self.use_context_separator = use_context_separator
         if use_context_separator:
             added = self.tokenizer.add_special_tokens(
-                {"additional_special_tokens": [SENTENCE_BOUNDARY_TAG]}, replace_additional_special_tokens=False
+                {"additional_special_tokens": [SENTENCE_BOUNDARY_TAG]}, replace_extra_special_tokens=False
             )
             transformer_model.resize_token_embeddings(transformer_model.config.vocab_size + added)
 
