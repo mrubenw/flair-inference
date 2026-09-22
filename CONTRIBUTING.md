@@ -58,8 +58,8 @@ In general, it is recommended to ensure all basic tests are running through befo
 
 ### Code Formatting
 
-To ensure a standardized code style we use the formatter [black](https://github.com/ambv/black) and for standardizing imports we use [ruff](https://github.com/charliermarsh/ruff).
-If your code is not formatted properly, the tests will fail.
+To ensure a standardized code style we use [ruff](https://docs.astral.sh/ruff/), both to format the code and to standardize imports.
+If your code is not formatted properly, the CI will fail.
 
-We recommend configuring your IDE to run these formatters for you, but you can also always run them manually via
-`black . && ruff --fix .` in the flair root folder.
+We recommend configuring your IDE to run ruff for you, but you can also always run it manually via
+`ruff format . && ruff check --fix .` in the flair root folder.
