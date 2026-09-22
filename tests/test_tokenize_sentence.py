@@ -1,7 +1,8 @@
 import pytest
 
 import flair
-from flair.data import Sentence, Token, Relation
+from flair.data import Relation, Sentence, Token
+from flair.embeddings import TransformerDocumentEmbeddings, TransformerWordEmbeddings
 from flair.splitter import (
     NewlineSentenceSplitter,
     NoSentenceSplitter,
@@ -16,10 +17,9 @@ from flair.tokenization import (
     SegtokTokenizer,
     SpaceTokenizer,
     SpacyTokenizer,
-    TokenizerWrapper,
     StaccatoTokenizer,
+    TokenizerWrapper,
 )
-from flair.embeddings import TransformerWordEmbeddings, TransformerDocumentEmbeddings
 
 
 def test_create_sentence_on_empty_string():

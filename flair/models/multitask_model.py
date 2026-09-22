@@ -88,7 +88,6 @@ class MultitaskModel(flair.nn.Classifier):
         sentences,
         **predictargs,
     ):
-
         if not isinstance(sentences, list):
             sentences = [sentences]
 

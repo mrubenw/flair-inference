@@ -2,7 +2,7 @@ import logging
 import re
 import sys
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Tuple, Any
+from typing import Any, Callable, Optional
 
 from segtok.segmenter import split_single
 from segtok.tokenizer import split_contractions, word_tokenizer
@@ -478,8 +478,7 @@ class SciSpacyTokenizer(Tokenizer):
 
 
 class StaccatoTokenizer(Tokenizer):
-    """
-    A string-based tokenizer that splits text into tokens based on the following rules:
+    """A string-based tokenizer that splits text into tokens based on the following rules:
     - Punctuation characters are split into individual tokens
     - Sequences of numbers are kept together as single tokens
     - Kanji characters are split into individual tokens
@@ -528,8 +527,7 @@ class StaccatoTokenizer(Tokenizer):
         self.token_pattern = re.compile(combined_pattern)
 
     def tokenize(self, text: str) -> list[str]:
-        """
-        Tokenize the input text using re.findall to extract valid tokens.
+        """Tokenize the input text using re.findall to extract valid tokens.
 
         Args:
             text: The input text to tokenize
@@ -562,8 +560,7 @@ class StaccatoTokenizer(Tokenizer):
 
 
 class NoTokenizer(Tokenizer):
-    """
-    A dummy tokenizer that performs no tokenization.
+    """A dummy tokenizer that performs no tokenization.
     It returns the original text as a single token in a list,
     or an empty list if the text is empty or whitespace.
     Useful when text is pre-tokenized or to disable tokenization.
@@ -573,8 +570,7 @@ class NoTokenizer(Tokenizer):
         super().__init__()
 
     def tokenize(self, text: str) -> list[str]:
-        """
-        Returns the text as a single token if not empty/whitespace,
+        """Returns the text as a single token if not empty/whitespace,
         otherwise returns an empty list.
         """
         stripped_text = text.strip()

@@ -132,7 +132,6 @@ class TokenClassifier(flair.nn.DefaultClassifier[Sentence, Token]):
         """
         # Special handling only during training and only if predicting spans (BIOES/BIO tags)
         if self.training and self.span_prediction_problem:
-
             # --- Initial Check: Does the sentence contain any spans for this label type? ---
             relevant_spans = sentence.get_spans(self.label_type)
             if not relevant_spans:

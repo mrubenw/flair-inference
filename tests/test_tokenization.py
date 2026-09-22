@@ -2,11 +2,11 @@ import pytest
 
 # Assuming these tokenizers are in flair.tokenization
 from flair.tokenization import (
+    JapaneseTokenizer,
+    SciSpacyTokenizer,
     SegtokTokenizer,
     SpaceTokenizer,
     SpacyTokenizer,
-    JapaneseTokenizer,
-    SciSpacyTokenizer,
     StaccatoTokenizer,
     TokenizerWrapper,
 )
@@ -132,7 +132,6 @@ def test_tokenizer_wrapper_serialization():
 
 
 def test_tokenizer_equality():
-
     assert StaccatoTokenizer() == StaccatoTokenizer()
     assert SegtokTokenizer() == SegtokTokenizer()
     assert SegtokTokenizer() != StaccatoTokenizer()

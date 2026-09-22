@@ -1,11 +1,11 @@
 import copy
-from flair.data import Sentence, Relation
+
+from flair.data import Relation, Sentence
 from flair.tokenization import SegtokTokenizer, SpaceTokenizer
 
 
 def _create_annotated_sentence() -> Sentence:
-    """
-    Creates a complexly annotated sentence for testing.
+    """Creates a complexly annotated sentence for testing.
     "George Washington went to Washington."
     - Sentence-level label
     - "George Washington" is a PERSON

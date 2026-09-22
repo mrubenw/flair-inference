@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 
 import flair
-from flair.embeddings import FlairEmbeddings, WordEmbeddings
+from flair.embeddings import WordEmbeddings
 from flair.models import SequenceTagger
 from tests.model_test_utils import BaseModelTest
 

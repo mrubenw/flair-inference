@@ -1,3 +1,4 @@
+import importlib
 import inspect
 import itertools
 import logging
@@ -23,7 +24,6 @@ from flair.embeddings import Embeddings
 from flair.embeddings.base import load_embeddings
 from flair.file_utils import Tqdm, load_torch_state
 from flair.training_utils import EmbeddingStorageMode, Result, store_embeddings
-import importlib
 
 log = logging.getLogger("flair")
 
@@ -51,8 +51,8 @@ class Model(torch.nn.Module, typing.Generic[DT], ABC):
 
     @property
     def tokenizer(self) -> Optional[flair.tokenization.Tokenizer]:
-        """
-        Gets the tokenizer associated with this model.
+        """Gets the tokenizer associated with this model.
+
         Returns:
             Optional[flair.tokenization.Tokenizer]: The tokenizer instance, or None if not set.
         """
@@ -60,8 +60,8 @@ class Model(torch.nn.Module, typing.Generic[DT], ABC):
 
     @tokenizer.setter
     def tokenizer(self, value: Optional[flair.tokenization.Tokenizer]) -> None:
-        """
-        Sets the tokenizer for this model.
+        """Sets the tokenizer for this model.
+
         Args:
             value (Optional[flair.tokenization.Tokenizer]): The tokenizer instance to set.
         """
@@ -152,7 +152,6 @@ class Model(torch.nn.Module, typing.Generic[DT], ABC):
         current_tokenizer = self.tokenizer
 
         if current_tokenizer is not None:
-
             if hasattr(current_tokenizer, "to_dict") and callable(getattr(current_tokenizer, "to_dict")):
                 try:
                     potential_tokenizer_info = current_tokenizer.to_dict()
@@ -258,8 +257,7 @@ class Model(torch.nn.Module, typing.Generic[DT], ABC):
 
     @staticmethod
     def _fetch_model(model_identifier: str):
-        """
-        Returns a model path (e.g., Huggingface model hub id or other repo path) given a model identifier.
+        """Returns a model path (e.g., Huggingface model hub id or other repo path) given a model identifier.
 
         This method is typically overwritten in specific classes that inherit from Model to allow for easier access
         to pre-specified models. For instance, in the SequenceTagger, the id "ner" maps to the HF path
@@ -1033,7 +1031,6 @@ class DefaultClassifier(Classifier[DT], typing.Generic[DT, DT2], ABC):
             label_name = self.label_type if self.label_type is not None else "label"
 
         with torch.no_grad():
-
             if not isinstance(sentences, list):
                 sentences = [sentences]
 

@@ -411,8 +411,7 @@ def store_embeddings(
 
 
 def identify_dynamic_embeddings(data_points: list[DT]) -> Optional[list[str]]:
-    """
-    Identifies the names of all embeddings across a list of DataPoints
+    """Identifies the names of all embeddings across a list of DataPoints
     that have requires_grad set to True by checking the DataPoints and their components.
 
     Args:

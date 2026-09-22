@@ -856,7 +856,6 @@ class ColumnDataset(FlairDataset):
         return tag
 
     def __line_completes_sentence(self, line: str) -> bool:
-
         if self.documents_as_sentences and self.document_separator_token:
             return line.startswith(self.document_separator_token)
 
@@ -5421,7 +5420,6 @@ class NER_NOISEBENCH(ColumnCorpus):
 
         noisy_labels = self._read_column_file(self.base_path / "annotations_only" / f"{corpus}.traindev")
         for index, sentence in zip(token_indices, noisy_labels):
-
             if index.strip() == "docstart":
                 assert len(sentence) == 1
                 sentence[0][0] = "-DOCSTART-"
@@ -5437,7 +5435,6 @@ class NER_NOISEBENCH(ColumnCorpus):
         return noisy_labels
 
     def _generate_data_files(self, filename: str, origin_dataset_name: str) -> None:
-
         with open(self.base_path / "annotations_only" / "index.txt", encoding="utf-8") as index_file:
             token_indices = index_file.readlines()
             all_clean_sentences = self._read_column_file(self.cleanconll_base_path / f"{origin_dataset_name}.train")

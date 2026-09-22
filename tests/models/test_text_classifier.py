@@ -2,7 +2,7 @@ import pytest
 
 import flair.datasets
 from flair.data import Sentence
-from flair.embeddings import DocumentRNNEmbeddings, FlairEmbeddings, WordEmbeddings
+from flair.embeddings import DocumentRNNEmbeddings, WordEmbeddings
 from flair.models import TextClassifier
 from tests.model_test_utils import BaseModelTest
 

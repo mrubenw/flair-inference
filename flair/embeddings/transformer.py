@@ -682,6 +682,7 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
             image_encodings = image_encodings.to(flair.device)
             try:
                 from transformers import LayoutLMv2FeatureExtractor
+
                 is_layoutlmv2 = isinstance(self.feature_extractor, LayoutLMv2FeatureExtractor)
             except ImportError:
                 is_layoutlmv2 = False
