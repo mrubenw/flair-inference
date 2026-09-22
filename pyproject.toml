@@ -1,20 +1,4 @@
-[tool.black]
-line-length = 120
-target-version = ['py39']
-exclude = '''
-(
-  /(
-      \.eggs
-    | \.git
-    | \.pytest_cache
-    | build
-    | dist
-    | venv
-  )/
-)
-'''
 [tool.pytest.ini_options]
-addopts = "--black --mypy --ruff"
 filterwarnings = [
     "error",  # Convert all warnings to errors
     'ignore:torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables',  # Distilbert warning
