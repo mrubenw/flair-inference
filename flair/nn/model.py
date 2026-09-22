@@ -602,8 +602,8 @@ class Classifier(Model[DT], typing.Generic[DT], ReduceTransformerVocabMixin, ABC
         log.debug(f"Evaluating as a multi-label problem: {multi_label}")
 
         # compute numbers by formatting true and predicted such that Scikit-Learn can use them
-        y_true = []
-        y_pred = []
+        y_true: list = []
+        y_pred: list = []
         if multi_label:
             # multi-label problems require a multi-hot vector for each true and predicted label
             for true_instance in true_values_span_aligned:
