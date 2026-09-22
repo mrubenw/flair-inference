@@ -986,6 +986,7 @@ def test_retokenize_removes_token_labels_keeps_span_labels():
     new_token_berlin = sentence[2]  # Assuming tokenization is similar for these words
 
     assert len(new_token_peter.get_labels("pos")) == 0
+    assert len(new_token_berlin.get_labels("pos")) == 0
 
     # Verify the sentence's central registry for 'pos' is now empty
     assert len(sentence.get_labels("pos")) == 0, "Sentence 'pos' layer should be empty after retokenize"
