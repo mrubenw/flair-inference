@@ -26,7 +26,7 @@ class ImbalancedClassificationDatasetSampler(FlairSampler):
     """Use this to upsample rare classes and downsample common classes in your unbalanced classification dataset."""
 
     def __init__(self) -> None:
-        super().__init__(None)
+        super().__init__()
 
     def set_dataset(self, data_source):
         """Initialize the dataset used for sampling."""
@@ -57,7 +57,7 @@ class ChunkSampler(FlairSampler):
     """
 
     def __init__(self, block_size=5, plus_window=5) -> None:
-        super().__init__(None)
+        super().__init__()
         self.block_size = block_size
         self.plus_window = plus_window
         self.data_source = None
@@ -91,7 +91,7 @@ class ExpandingChunkSampler(FlairSampler):
         Args:
             step: every *step* epochs the block size increments by one.
         """
-        super().__init__(None)
+        super().__init__()
         self.block_size = 1
         self.epoch_count = 0
         self.step = step
