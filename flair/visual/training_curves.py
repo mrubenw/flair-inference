@@ -5,7 +5,7 @@ import logging
 import math
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class Plotter:
     """
 
     @staticmethod
-    def _extract_evaluation_data(file_name: Union[str, Path], score: str = "F1") -> dict:
+    def _extract_evaluation_data(file_name: str | Path, score: str = "F1") -> dict:
         file_name = Path(file_name)
 
         training_curves: dict[str, dict[str, list[float]]] = {
@@ -70,7 +70,7 @@ class Plotter:
         return training_curves
 
     @staticmethod
-    def _extract_weight_data(file_name: Union[str, Path]) -> dict:
+    def _extract_weight_data(file_name: str | Path) -> dict:
         if isinstance(file_name, str):
             file_name = Path(file_name)
 
@@ -89,7 +89,7 @@ class Plotter:
         return weights
 
     @staticmethod
-    def _extract_learning_rate(file_name: Union[str, Path]):
+    def _extract_learning_rate(file_name: str | Path):
         if isinstance(file_name, str):
             file_name = Path(file_name)
 
@@ -111,12 +111,12 @@ class Plotter:
 
         return lrs, losses
 
-    def plot_weights(self, file_name: Union[str, Path]):
+    def plot_weights(self, file_name: str | Path):
         try:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)
@@ -165,12 +165,12 @@ class Plotter:
         log.info(f"Weights plots are saved in {path}")
         plt.close(fig)
 
-    def plot_training_curves(self, file_name: Union[str, Path], plot_values: list[str] = ["loss", "F1"]):
+    def plot_training_curves(self, file_name: str | Path, plot_values: list[str] = ["loss", "F1"]):
         try:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)
@@ -202,12 +202,12 @@ class Plotter:
         plt.show(block=False)  # to have the plots displayed when user run this module
         plt.close(fig)
 
-    def plot_learning_rate(self, file_name: Union[str, Path], skip_first: int = 10, skip_last: int = 5):
+    def plot_learning_rate(self, file_name: str | Path, skip_first: int = 10, skip_last: int = 5):
         try:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "matplotlib is required for training curve visualization. " "Install with: pip install matplotlib"
+                "matplotlib is required for training curve visualization. Install with: pip install matplotlib"
             )
 
         file_name = Path(file_name)

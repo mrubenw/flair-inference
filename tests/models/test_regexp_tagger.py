@@ -3,7 +3,6 @@ from flair.models import RegexpTagger
 
 
 def test_regexp_tagger():
-
     sentence = Sentence('Der sagte: "das ist durchaus interessant"')
 
     tagger = RegexpTagger(

@@ -75,7 +75,6 @@ class TestChunking:
     def check_token_entities(self, sentence: Sentence, expected_labels: list[TokenEntity]):
         assert len(sentence.labels) == len(expected_labels)
         for label, expected_label in zip(sentence.labels, expected_labels):
-
             assert label.value == expected_label.label
             span = cast(Sentence, label.data_point)
             assert span.tokens[0]._internal_index is not None

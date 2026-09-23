@@ -411,9 +411,9 @@ def store_embeddings(
 
 
 def identify_dynamic_embeddings(data_points: list[DT]) -> Optional[list[str]]:
-    """
-    Identifies the names of all embeddings across a list of DataPoints
-    that have requires_grad set to True by checking the DataPoints and their components.
+    """Identifies the names of all embeddings across a list of DataPoints.
+
+    Embeddings that have requires_grad set to True are found by checking the DataPoints and their components.
 
     Args:
         data_points: A list of Flair DataPoints (Token, Sentence, DataPair, etc.).
@@ -433,10 +433,9 @@ def identify_dynamic_embeddings(data_points: list[DT]) -> Optional[list[str]]:
 
         # Check if *any* embeddings exist at all (dynamic or static)
         # to decide whether to return None or an empty list later.
-        if not any_embeddings_found:
-            # Check if the point has *any* embeddings using the helper
-            if data_point._get_all_embedding_names():
-                any_embeddings_found = True
+        # Check if the point has *any* embeddings using the helper
+        if not any_embeddings_found and data_point._get_all_embedding_names():
+            any_embeddings_found = True
 
     # Return None only if no embeddings whatsoever were found across all data points
     if not any_embeddings_found and not all_dynamic_embeddings:

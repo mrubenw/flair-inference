@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 import pytest
 
-import flair
 from flair.data import Dictionary, Sentence
 from flair.embeddings import TransformerEmbeddings
 from flair.models import FewshotClassifier

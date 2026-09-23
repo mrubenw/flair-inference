@@ -1,11 +1,10 @@
 from flair.data import Dictionary, Sentence
 from flair.embeddings import WordEmbeddings
-from flair.models import TokenClassifier, SequenceTagger
+from flair.models import SequenceTagger, TokenClassifier
 from flair.tokenization import SpaceTokenizer, StaccatoTokenizer
 
 
 def test_prediction_changes_tokenization():
-
     # simple dummy model
     dictionary = Dictionary()
     dictionary.add_item("test")
@@ -41,7 +40,6 @@ def test_prediction_changes_tokenization():
 
 
 def test_prediction_changes_tokenization_sequence_tagger():
-
     # NER model
     classifier = SequenceTagger.load("ner-fast")
 

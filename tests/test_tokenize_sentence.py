@@ -1,7 +1,8 @@
 import pytest
 
 import flair
-from flair.data import Sentence, Token, Relation
+from flair.data import Relation, Sentence, Token
+from flair.embeddings import TransformerDocumentEmbeddings, TransformerWordEmbeddings
 from flair.splitter import (
     NewlineSentenceSplitter,
     NoSentenceSplitter,
@@ -16,10 +17,9 @@ from flair.tokenization import (
     SegtokTokenizer,
     SpaceTokenizer,
     SpacyTokenizer,
-    TokenizerWrapper,
     StaccatoTokenizer,
+    TokenizerWrapper,
 )
-from flair.embeddings import TransformerWordEmbeddings, TransformerDocumentEmbeddings
 
 
 def test_create_sentence_on_empty_string():
@@ -986,6 +986,7 @@ def test_retokenize_removes_token_labels_keeps_span_labels():
     new_token_berlin = sentence[2]  # Assuming tokenization is similar for these words
 
     assert len(new_token_peter.get_labels("pos")) == 0
+    assert len(new_token_berlin.get_labels("pos")) == 0
 
     # Verify the sentence's central registry for 'pos' is now empty
     assert len(sentence.get_labels("pos")) == 0, "Sentence 'pos' layer should be empty after retokenize"

@@ -2,11 +2,11 @@ import pytest
 
 # Assuming these tokenizers are in flair.tokenization
 from flair.tokenization import (
+    JapaneseTokenizer,
+    SciSpacyTokenizer,
     SegtokTokenizer,
     SpaceTokenizer,
     SpacyTokenizer,
-    JapaneseTokenizer,
-    SciSpacyTokenizer,
     StaccatoTokenizer,
     TokenizerWrapper,
 )
@@ -66,7 +66,7 @@ def test_space_tokenizer_serialization():
 
 
 def test_spacy_tokenizer_serialization():
-    pytest.importorskip("spacy")
+    spacy = pytest.importorskip("spacy")
     # Skip if model not installed, or handle potential download within test setup if desired
     try:
         spacy.load("en_core_web_sm")
@@ -101,7 +101,7 @@ def test_japanese_tokenizer_serialization():
 
 
 def test_scispacy_tokenizer_serialization():
-    pytest.importorskip("spacy")
+    spacy = pytest.importorskip("spacy")
     pytest.importorskip("scispacy")
     # Skip if model not installed
     try:
@@ -132,7 +132,6 @@ def test_tokenizer_wrapper_serialization():
 
 
 def test_tokenizer_equality():
-
     assert StaccatoTokenizer() == StaccatoTokenizer()
     assert SegtokTokenizer() == SegtokTokenizer()
     assert SegtokTokenizer() != StaccatoTokenizer()
