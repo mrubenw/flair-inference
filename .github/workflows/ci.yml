@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       HF_HOME: ./cache/transformers
+      HF_HUB_DISABLE_XET: "1"
       FLAIR_CACHE_ROOT: ./cache/flair
     steps:
       - uses: actions/checkout@v3
