@@ -6,20 +6,19 @@ import typing
 from abc import ABC, abstractmethod
 from collections import Counter, defaultdict
 from collections.abc import Iterable
-from operator import itemgetter
 from os import PathLike
 from pathlib import Path
 from typing import Any, NamedTuple, Optional, Union, cast
 
 import torch
 from deprecated.sphinx import deprecated
+from torch import device as torch_device  # Import torch.device for type hint
 from torch.utils.data import Dataset, IterableDataset
 from torch.utils.data.dataset import ConcatDataset, Subset
-from torch import device as torch_device  # Import torch.device for type hint
 
 import flair
 from flair.file_utils import Tqdm
-from flair.tokenization import SegtokTokenizer, SpaceTokenizer, Tokenizer, NoTokenizer
+from flair.tokenization import NoTokenizer, SegtokTokenizer, SpaceTokenizer, Tokenizer
 
 T_co = typing.TypeVar("T_co", covariant=True)
 
@@ -149,7 +148,7 @@ class Dictionary:
             raise IndexError
 
     def get_idx_for_items(self, items: list[str]) -> list[int]:
-        """Retrieves the integer IDs for a list of string items. (No cache version)"""
+        """Retrieves the integer IDs for a list of string items. (No cache version)."""
         if not items:
             return []
 
@@ -428,7 +427,6 @@ class DataPoint(ABC):
     @abstractmethod
     def embedding(self) -> torch.Tensor:
         """Provides the primary embedding representation of the data point."""
-        pass
 
     def set_embedding(self, name: str, vector: torch.Tensor):
         """Stores an embedding tensor under a given name.
@@ -690,8 +688,8 @@ class DataPoint(ABC):
 
     # Default implementation for simpler classes
     def _get_dynamic_embedding_names(self) -> set[str]:
-        """
-        Internal helper to find names of embeddings with requires_grad=True.
+        """Internal helper to find names of embeddings with requires_grad=True.
+
         Default implementation checks only direct embeddings. Subclasses override
         for recursive checks if needed.
         """
@@ -699,8 +697,8 @@ class DataPoint(ABC):
 
     # Default implementation for simpler classes
     def _get_all_embedding_names(self) -> set[str]:
-        """
-        Internal helper to find names of all embeddings.
+        """Internal helper to find names of all embeddings.
+
         Default implementation checks only direct embeddings. Subclasses override
         for recursive checks if needed.
         """
@@ -1131,7 +1129,6 @@ class Relation(_PartOfSentence):
     @property
     def text(self) -> str:
         """A simple textual representation: '<head_text_preview> -> <tail_text_preview>'."""
-
         return f"{self.first.text} -> {self.second.text}"
 
     @staticmethod
@@ -1315,8 +1312,8 @@ class Sentence(DataPoint):
         return self._tokens
 
     def _perform_retokenization_with_annotation_preservation(self, new_tokenizer: Tokenizer) -> None:
-        """
-        Internal method to retokenize the sentence, attempting to preserve annotations.
+        """Internal method to retokenize the sentence, attempting to preserve annotations.
+
         This method directly manipulates self._tokens and updates self._tokenizer_that_created_tokens.
         """
         # 1. Capture all annotations from the current tokenization
@@ -1339,8 +1336,8 @@ class Sentence(DataPoint):
 
     @tokenizer.setter
     def tokenizer(self, new_tokenizer: Tokenizer) -> None:
-        """
-        Sets the new intended tokenizer for this sentence.
+        """Sets the new intended tokenizer for this sentence.
+
         Retokenization is lazy and will occur the next time .tokens is accessed if the
         new_tokenizer is different from the one that last created the tokens.
         """
@@ -1356,7 +1353,6 @@ class Sentence(DataPoint):
 
     def _tokenize(self) -> None:
         """Internal method to perform tokenization based on `self.text` and `self._tokenizer`."""
-
         # tokenize the text
         words = self._tokenizer.tokenize(self._text)
 
@@ -1508,10 +1504,9 @@ class Sentence(DataPoint):
         super().clear_embeddings(embedding_names)
 
         # clear token embeddings if sentence is tokenized
-        if self._is_tokenized():
-            if self._tokens is not None:
-                for token in self._tokens:
-                    token.clear_embeddings(embedding_names)
+        if self._is_tokenized() and self._tokens is not None:
+            for token in self._tokens:
+                token.clear_embeddings(embedding_names)
 
     def left_context(self, context_length: int, respect_document_boundaries: bool = True) -> list[Token]:
         sentence = self
@@ -1590,9 +1585,10 @@ class Sentence(DataPoint):
         return self
 
     def to_dict(self) -> dict[str, Any]:
-        """
-        Creates a dictionary representation of the Sentence.
+        """Creates a dictionary representation of the Sentence.
+
         This dictionary can be used to recreate the sentence with from_dict().
+
         Returns:
             A dictionary containing the sentence's data and annotations.
         """
@@ -1623,10 +1619,11 @@ class Sentence(DataPoint):
 
     @classmethod
     def from_dict(cls, sentence_dict: dict[str, Any]) -> "Sentence":
-        """
-        Creates a Sentence from a dictionary.
+        """Creates a Sentence from a dictionary.
+
         Args:
             sentence_dict: A dictionary in the format produced by to_dict().
+
         Returns:
             The reconstructed Sentence object.
         """
@@ -1683,9 +1680,7 @@ class Sentence(DataPoint):
         return sentence
 
     def __deepcopy__(self, memo):
-        """
-        Custom deepcopy implementation to handle complex object graph with Spans and Relations.
-        """
+        """Custom deepcopy implementation to handle complex object graph with Spans and Relations."""
         # --- 1. Create the basic copy of the Sentence ---
         # First, create a new sentence with the same text and tokenizer.
         # This will create a fresh set of tokens.
@@ -1950,8 +1945,8 @@ class Sentence(DataPoint):
             ]
 
     def _clear_internal_state(self) -> None:
-        """
-        Resets the internal tokenization and annotation state of the sentence.
+        """Resets the internal tokenization and annotation state of the sentence.
+
         Used before operations like retokenization that rebuild the sentence structure.
         """
         # Clear the central annotation registry
@@ -1964,9 +1959,10 @@ class Sentence(DataPoint):
         self.tokenized = None
 
     def _capture_annotations(self) -> dict[str, Any]:
-        """
-        Captures all annotations (sentence, span, relation labels) in a serializable format.
+        """Captures all annotations (sentence, span, relation labels) in a serializable format.
+
         This is a non-destructive, read-only operation.
+
         Returns:
             A dictionary containing the structured annotation data.
         """
@@ -2037,9 +2033,10 @@ class Sentence(DataPoint):
         }
 
     def _reapply_annotations(self, annotation_data: dict[str, Any]) -> None:
-        """
-        Applies a dictionary of annotations to the current sentence.
+        """Applies a dictionary of annotations to the current sentence.
+
         This is used by both retokenization and deserialization.
+
         Args:
             annotation_data: A dictionary in the format produced by _capture_annotations.
         """
@@ -2106,8 +2103,8 @@ class Sentence(DataPoint):
                 )
 
     def retokenize(self, new_tokenizer: Tokenizer) -> None:
-        """
-        Eagerly retokenizes the sentence using the provided tokenizer.
+        """Eagerly retokenizes the sentence using the provided tokenizer.
+
         This attempts to preserve span, relation, and sentence labels.
         Token-level labels are generally discarded as their basis (the tokens themselves) changes.
 
@@ -2436,8 +2433,8 @@ class Corpus(typing.Generic[T_co]):
 
     @property
     def corpus_tokenizer(self) -> Optional[Tokenizer]:
-        """
-        Returns the custom tokenizer provided during corpus initialization for retokenization, if any.
+        """Returns the custom tokenizer provided during corpus initialization for retokenization, if any.
+
         Returns None if no custom retokenizer was specified.
         """
         # The tokenizer attribute is set by subclasses like ColumnCorpus during their init
@@ -2991,7 +2988,6 @@ class FlairDataset(Dataset):
     @abstractmethod
     def is_in_memory(self) -> bool:
         """Returns True if the entire dataset is currently loaded in memory, False otherwise."""
-        pass
 
 
 class ConcatFlairDataset(Dataset):

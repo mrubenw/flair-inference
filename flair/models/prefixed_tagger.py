@@ -154,9 +154,7 @@ class EntityTypeTaskPromptAugmentationStrategy(SentenceAugmentationStrategy):
                     ]
                 else:
                     label_span = augmented_sentence[
-                        len_task_prompt
-                        + label.data_point.tokens[0].idx
-                        - 1 : len_task_prompt
+                        len_task_prompt + label.data_point.tokens[0].idx - 1 : len_task_prompt
                         + label.data_point.tokens[-1].idx
                     ]
 

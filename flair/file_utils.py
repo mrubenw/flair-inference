@@ -1,6 +1,7 @@
 """Utilities for working with the local dataset cache. Copied from AllenNLP."""
 
 import base64
+import contextlib
 import functools
 import io
 import logging
@@ -19,7 +20,6 @@ from urllib.parse import urlparse
 
 import requests
 import torch
-from requests import HTTPError
 from tqdm import tqdm as _tqdm
 
 import flair
@@ -141,6 +141,7 @@ def hf_download(model_name: str) -> str:
     model_folder = model_name.split("/", maxsplit=1)[1] if "/" in model_name else model_name
 
     # Lazy import
+    from huggingface_hub.errors import HfHubHTTPError
     from huggingface_hub.file_download import hf_hub_download
 
     try:
@@ -152,9 +153,11 @@ def hf_download(model_name: str) -> str:
             library_version=flair.__version__,
             cache_dir=flair.cache_root / "models" / model_folder,
         )
-    except HTTPError:
-        # output information
-        Path(flair.cache_root / "models" / model_folder).rmdir()  # remove folder again if not valid
+    except HfHubHTTPError:
+        # Remove the folder again if not valid. The cleanup must never hide the
+        # download error, and the folder can be missing or non-empty here.
+        with contextlib.suppress(OSError):
+            Path(flair.cache_root / "models" / model_folder).rmdir()
         raise
 
 

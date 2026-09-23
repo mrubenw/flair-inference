@@ -1,6 +1,6 @@
 import torch
 
-from flair.data import Token, Sentence, DataPair, Span, DataTriple, Image
+from flair.data import DataPair, DataTriple, Image, Sentence, Token
 from flair.training_utils import identify_dynamic_embeddings
 
 # Helper tensors

@@ -1,7 +1,7 @@
 import pytest
 import torch
-import flair
 
+import flair
 from flair.data import Sentence
 from flair.datasets import ClassificationCorpus
 from flair.embeddings import TransformerDocumentEmbeddings
@@ -33,7 +33,6 @@ class TestDeepNCMDecoder(BaseModelTest):
         return Sentence("This movie was great!")
 
     def build_model(self, embeddings, label_dict, **kwargs):
-
         model_args = {
             "embeddings": embeddings,
             "label_dictionary": label_dict,
