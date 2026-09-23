@@ -36,6 +36,23 @@ from flair.embeddings.base import DocumentEmbeddings, Embeddings, TokenEmbedding
 
 SENTENCE_BOUNDARY_TAG: str = "[FLERT]"
 
+LEGACY_MODEL_IDS: dict[str, str] = {
+    # Hugging Face moved the original model repositories under organisation names and now
+    # answers the plain names with a redirect. A mirror that does not follow the redirect
+    # cannot serve them, so a saved embedding that recorded a plain name is loaded with the
+    # canonical name instead. Targets taken from the redirects the hub returns today.
+    "bert-base-cased": "google-bert/bert-base-cased",
+    "bert-base-multilingual-cased": "google-bert/bert-base-multilingual-cased",
+    "bert-base-uncased": "google-bert/bert-base-uncased",
+    "distilbert-base-multilingual-cased": "distilbert/distilbert-base-multilingual-cased",
+    "distilbert-base-uncased": "distilbert/distilbert-base-uncased",
+    "gpt2": "openai-community/gpt2",
+    "roberta-base": "FacebookAI/roberta-base",
+    "roberta-large": "FacebookAI/roberta-large",
+    "xlm-roberta-base": "FacebookAI/xlm-roberta-base",
+    "xlm-roberta-large": "FacebookAI/xlm-roberta-large",
+}
+
 
 @torch.jit.script_if_tracing
 def pad_sequence_embeddings(all_hidden_states: list[torch.Tensor]) -> torch.Tensor:
@@ -1373,7 +1390,8 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
         state.pop("memory_effective_training", None)
 
         if "base_model_name" in state:
-            state["model"] = state.pop("base_model_name")
+            base_model_name = state.pop("base_model_name")
+            state["model"] = LEGACY_MODEL_IDS.get(base_model_name, base_model_name)
 
         state["use_context"] = state.pop("context_length", False)
 
@@ -1429,6 +1447,8 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
 
     @classmethod
     def from_params(cls, params):
+        if "model" in params:
+            params["model"] = LEGACY_MODEL_IDS.get(params["model"], params["model"])
         params.pop("truncate", None)
         params.pop("stride", None)
         params.pop("embedding_length", None)
