@@ -21,6 +21,7 @@ from transformers import (  # type: ignore[attr-defined]  # T5TokenizerFast: tra
     AutoModel,
     AutoTokenizer,
     FeatureExtractionMixin,
+    ImageProcessingMixin,
     PretrainedConfig,
     PreTrainedTokenizerBase,
     T5Config,
@@ -324,6 +325,56 @@ def _reconstruct_word_ids_from_subtokens(embedding, tokens: list[str], subtokens
     return word_ids
 
 
+def _legacy_feature_extractor_type_to_image_processor_type(type_name: str) -> str:
+    """Map a deprecated `*FeatureExtractor` config type name to its `*ImageProcessor` replacement.
+
+    transformers 5 finished a long-running deprecation: vision feature extractors such as
+    `LayoutLMv2FeatureExtractor` and `LayoutLMv3FeatureExtractor` were removed, and vision models must be loaded
+    through the `*ImageProcessor` class with the same prefix instead (see the `pyproject.toml` warning filter
+    this repo already carried for that deprecation). A `preprocessor_config.json` saved by an older
+    transformers/flair version still names the old class, so we translate it using the same renaming pattern.
+    """
+    if type_name.endswith("FeatureExtractor"):
+        return type_name[: -len("FeatureExtractor")] + "ImageProcessor"
+    return type_name
+
+
+def _auto_preprocessor_from_pretrained(
+    pretrained_model_name_or_path, **kwargs
+) -> Optional[Union[FeatureExtractionMixin, ImageProcessingMixin]]:
+    """Load the feature extractor or image processor for a pretrained model, or None if it has neither.
+
+    In transformers 5, `AutoFeatureExtractor` only resolves audio/speech models (its `FEATURE_EXTRACTOR_MAPPING`
+    is audio-only); it raises `ValueError` for vision models like LayoutLMv2/LayoutLMv3, which now need an
+    `*ImageProcessor`. `AutoImageProcessor` looks like the natural replacement, but in an environment without
+    torchvision (as in this repo's CI) it is a hard-gated dummy object: merely accessing `.from_pretrained`
+    raises `ImportError`, before any model-specific fallback logic runs. So `AutoImageProcessor` cannot be used
+    here at all. Instead we read the declared processor type from the model's `preprocessor_config.json`
+    ourselves and resolve the concrete `*ImageProcessor` class by name; those per-model classes gracefully fall
+    back to a Pillow-only implementation when torchvision is missing.
+    """
+    try:
+        return AutoFeatureExtractor.from_pretrained(pretrained_model_name_or_path, **kwargs)
+    except OSError:
+        return None
+    except ValueError:
+        pass
+
+    try:
+        config_dict, _ = ImageProcessingMixin.get_image_processor_dict(pretrained_model_name_or_path, **kwargs)
+    except OSError:
+        return None
+
+    type_name = config_dict.get("image_processor_type") or config_dict.get("feature_extractor_type")
+    if type_name is None:
+        return None
+
+    image_processor_cls = getattr(transformers, _legacy_feature_extractor_type_to_image_processor_type(type_name), None)
+    if image_processor_cls is None:
+        return None
+    return image_processor_cls.from_pretrained(pretrained_model_name_or_path, **kwargs)
+
+
 class TransformerBaseEmbeddings(Embeddings[Sentence]):
     """Base class for all TransformerEmbeddings.
 
@@ -349,7 +400,7 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
         is_token_embedding: bool = False,
         force_device: Optional[torch.device] = None,
         force_max_length: bool = False,
-        feature_extractor: Optional[FeatureExtractionMixin] = None,
+        feature_extractor: Optional[Union[FeatureExtractionMixin, ImageProcessingMixin]] = None,
         needs_manual_ocr: Optional[bool] = None,
         use_context_separator: bool = True,
     ) -> None:
@@ -452,13 +503,15 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
             return AutoTokenizer.from_pretrained(temp_dir)
 
     @classmethod
-    def _feature_extractor_from_bytes(cls, zip_data: Optional[BytesIO]) -> Optional[FeatureExtractionMixin]:
+    def _feature_extractor_from_bytes(
+        cls, zip_data: Optional[BytesIO]
+    ) -> Optional[Union[FeatureExtractionMixin, ImageProcessingMixin]]:
         if zip_data is None:
             return None
         zip_obj = zipfile.ZipFile(zip_data)
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_obj.extractall(temp_dir)
-            return AutoFeatureExtractor.from_pretrained(temp_dir, apply_ocr=False)
+            return _auto_preprocessor_from_pretrained(temp_dir, apply_ocr=False)
 
     def __tokenizer_bytes(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -682,10 +735,12 @@ class TransformerBaseEmbeddings(Embeddings[Sentence]):
                 image_encodings = torch.stack(batched_image_encodings)
             image_encodings = image_encodings.to(flair.device)
             try:
-                from transformers import LayoutLMv2FeatureExtractor  # type: ignore[attr-defined]
-                # transformers 5 exposes this lazily via module __getattr__; guarded by ImportError below
+                from transformers import LayoutLMv2ImageProcessor
+                # transformers 5 removed LayoutLMv2FeatureExtractor; LayoutLMv2ImageProcessor is its replacement.
+                # It is exposed lazily via module __getattr__ and resolves to a Pillow-only fallback class when
+                # torchvision is not installed; guarded by ImportError below regardless.
 
-                is_layoutlmv2 = isinstance(self.feature_extractor, LayoutLMv2FeatureExtractor)
+                is_layoutlmv2 = isinstance(self.feature_extractor, LayoutLMv2ImageProcessor)
             except ImportError:
                 is_layoutlmv2 = False
 
@@ -1106,17 +1161,14 @@ class TransformerEmbeddings(TransformerBaseEmbeddings):
         logging.set_verbosity_error()
 
         self.tokenizer: PreTrainedTokenizerBase
-        self.feature_extractor: Optional[FeatureExtractionMixin]
+        self.feature_extractor: Optional[Union[FeatureExtractionMixin, ImageProcessingMixin]]
 
         if tokenizer_data is None:
             # load tokenizer and transformer model
             self.tokenizer = AutoTokenizer.from_pretrained(
                 model, add_prefix_space=True, **transformers_tokenizer_kwargs, **kwargs
             )
-            try:
-                self.feature_extractor = AutoFeatureExtractor.from_pretrained(model, apply_ocr=False, **kwargs)
-            except OSError:
-                self.feature_extractor = None
+            self.feature_extractor = _auto_preprocessor_from_pretrained(model, apply_ocr=False, **kwargs)
         else:
             # load tokenizer from inmemory zip-file
             self.tokenizer = self._tokenizer_from_bytes(tokenizer_data)
